@@ -1,8 +1,4 @@
-"""
-Author: Angel Garcia Olaya. PLG. UC3M
-Since: 2026-10-21
-Version: 1.2
-"""
+#fernan and daniel 2026 
 
 from objects.Board import Board
 
