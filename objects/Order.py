@@ -17,6 +17,7 @@ class Order:
     def time_left(self,time_left:int):
         if not isinstance(time_left,int):
             raise TypeError("Time left must be an integer")
+        self.__time_left = time_left
 
     def update(self):
         self.time_left = self.time_left - 1

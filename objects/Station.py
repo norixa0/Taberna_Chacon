@@ -11,9 +11,9 @@ class Station :
     @col.setter 
     def col(self,col:int):
         if not isinstance(col,int):
-            raise ValueError("Col must be an integer")
+            raise TypeError("Col must be an integer")
         if col<0:
-            raise ("Col must be a positive number")
+            raise ValueError("Col must be a positive number")
         else:
             self.__col=col
     @property
@@ -32,8 +32,8 @@ class Station :
         return self.__kind
     @kind.setter
     def kind(self,kind:str):
-        if not isinstance(kind,int):
-            raise TypeError("Kind must be an integer")
+        if not isinstance(kind,str):
+            raise TypeError("Kind must be a string")
         self.__kind = kind
     @property
     def content(self)->object:

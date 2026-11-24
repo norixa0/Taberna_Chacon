@@ -1,5 +1,5 @@
 class Dish :
-    def __init__(self,ingredients:list):
+    def __init__(self):
         self.ingredients=[]
     @property 
     def ingredients(self)->list:
