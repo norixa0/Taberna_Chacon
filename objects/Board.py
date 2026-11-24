@@ -11,7 +11,7 @@ class Board:
     def __init__(self):
         """ Method that creates the board. Additional parameters can be modified through assets/config.json
         """
-        with open("assets/config.json", "r") as file: # Read config.josn
+        with open("objects/assets/config.json", "r") as file: # Read config.json
             self.__config_data = json.load(file)
 
         # Define parameters (obtains them from json file)
@@ -25,7 +25,6 @@ class Board:
         # The lists in json file is in format: [bank, row, column, width, height]
         self.__scenery_images = self.__config_data["SCENERY_IMAGES"] # Scenery images in format. 
         self.__chef_images = self.__config_data["CHEF_IMAGES"] # Chef images in format.
-        self.__
 
         # The board contains two Chefs
         self.chef1 = Chef(self.width // 4, self.height // 4, "upper")
@@ -41,7 +40,6 @@ class Board:
         # Initialize pyxel
         pyxel.init(self.width, self.height, title="TABERNA CHACON", display_scale=4)
         # Loading the pyxres file with the images
-        print(os.getcwd()) # ---------------------------------------------------------------------------------------------------------
         pyxel.load("assets/resources.pyxres")
         # Running the game, this will call the update and draw methods every frame (30fps)
         pyxel.run(self.update, self.draw)
@@ -104,14 +102,14 @@ class Board:
         # To move chef2 (lower)
         if pyxel.btn(pyxel.KEY_LEFT):
             self.chef2.move("left", self)
-        elif pyxel.btn(pyxel.KEY_RIGHT):
+        if pyxel.btn(pyxel.KEY_RIGHT):
             self.chef2.move("right", self)
-        elif pyxel.btn(pyxel.KEY_UP):
+        if pyxel.btn(pyxel.KEY_UP):
             self.chef2.move("up", self)
-        elif pyxel.btn(pyxel.KEY_DOWN):
+        if pyxel.btn(pyxel.KEY_DOWN):
             self.chef2.move("down", self)
 
-        elif pyxel.btnp(pyxel.KEY_LSHIFT):
+        if pyxel.btnp(pyxel.KEY_LSHIFT):
             self.chef2.act()
 
     def draw(self):
@@ -122,53 +120,17 @@ class Board:
         pyxel.cls(0)
 
         # For knowing what are the coordinates of every element in the kitchen_map
-        # Iterates through the 11 map rows.
-        # row represents the horizontal position in the map.
+        # Iterate through the 11 map rows.
+        # row represents the vertical position in the map.
         for row in range(len(self.kitchen_map)):
-            # Iterates through the 12 characters in each row.
-            # column represents the vertical position.
-            for column in range(len(self.kitchen_map[0])):
-                x = column * self.tiles # each draw area occupies 16x16 in this case (self.tiles) 
-                y = row * self.tiles + self.service_h # leaving service_h pixels at the top for the service area
-                pos = self.__kitchen_map[row][column] # (x, y)
-                if pos=="S": # S for Service Board (orders, score, etc.) - WIP
-                    pass
-                if pos=="C": # C for Counter
-                    pyxel.blt(x, y, *self.__scenery_images["C"])
-                if pos=="F": # F for Floor
-                    pyxel.blt(x, y, *self.__scenery_images["F"])
-                if pos=="W": # W for Wall
-                    pyxel.blt(x, y, *self.__scenery_images["W"])
-                if pos=="P": # P for Pass (between chefs)
-                    pyxel.blt(x, y, *self.__scenery_images["P"])
-                if pos=="B": # B for Bin
-                    pyxel.blt(x, y, *self.__scenery_images["B"])
-                if pos=="o": # o for Onion
-                    pyxel.blt(x, y, *self.__scenery_images["o"])
-                if pos=="e": # e for Egg:
-                    pyxel.blt(x, y, *self.__scenery_images["e"])
-                if pos=="c": # c for Chorizo
-                    pyxel.blt(x, y, *self.__scenery_images["c"])
-                if pos=="b": # b for Board
-                    pyxel.blt(x, y, *self.__scenery_images["b"])
-                if pos=="r": # r for Blender
-                    pyxel.blt(x, y, *self.__scenery_images["r"])
-                if pos=="s": # s for Serve
-                    pyxel.blt(x, y, *self.__scenery_images["s"])
-                if pos=="k": # k for Sink
-                    pyxel.blt(x, y, *self.__scenery_images["k"])
-                if pos=="t": # t for Tomato
-                    pyxel.blt(x, y, *self.__scenery_images["t"])
-                if pos=="p": # p for Potato
-                    pyxel.blt(x, y, *self.__scenery_images["p"])
-                if pos=="d": # d for Board
-                    pyxel.blt(x, y, *self.__scenery_images["d"])
-                if pos=="n": # n for Pan
-                    pyxel.blt(x, y, *self.__scenery_images["n"])
-                if pos=="R": # R for Return
-                    pyxel.blt(x, y, *self.__scenery_images["R"])
-                if pos=="T": # T for Plates
-                    pyxel.blt(x, y, *self.__scenery_images["T"])
+            # Iterate through the 12 characters in this row.
+            # column represents the horizontal position.
+            for column in range(len(self.kitchen_map[row])):
+                pos = self.kitchen_map[row][column]  # Character at this map position
+
+                x = column * self.tiles  # Convert column to screen x-coordinate.
+                y = row * self.tiles + self.service_h  # Convert row to screen y-coordinate.
+                pyxel.blt(x, y, *self.__scenery_images[pos])  # Draw the matching tile.
 
         # Drawing the chef. Parameters of pyxel.blt are (x, y, sprite_tuple)
         # * used to unpack the sprite tuple

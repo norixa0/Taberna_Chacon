@@ -2,29 +2,32 @@
 
 # © 2026 norixa0, albertochamaquito8-create. All rights reserved.
 
+import json,os
+
 class Chef:
     """Chef class for the final project. Contains properties, setters, 
     a move method and an act method."""
-    def __init__(self, x: int, y: int, pos: str):
+    def __init__(self, x: int, y: int, POS: str):
         """:param x: the x of the chef
         :param y: the y of the chef
-        :param pos: the position of the chef: ("upper", "lower")
+        :param pos: the position of the chef (must be in CHEF_POSITIONS)
         """
+        with open("objects/assets/config.json", "r") as file: # Read config.json
+           self.__config_data = json.load(file)
+
+        # Load data into self (using setters and properties)
+        self.__CHEF_POSITIONS = self.__config_data["CHEF_POSITIONS"]
         self.x = x
         self.y = y
+        # position will be a constant once it's defined (chefs don't change area)
+        self.__POS = None
+        self.POS = POS
+
         # At the beginning it has no dish and is not acting
+        # Set attribs with properties and setters
         self.has_dish = False
         self.acting = False
-        # The sprite will be a read only attribute that depends on the
-        # POSITION, which will be a private one.
-        POSITIONS = ("upper", "lower")
-        if not isinstance(pos, str):
-            raise TypeError("The position of the Chef must be a str")
-        elif pos.lower() not in POSITIONS:
-            raise ValueError("The valid positions are " + str(POSITIONS))
-        else:
-            # We create it as private constant as Chefs will never change area
-            self.__POSITION = pos.lower()
+
 
     # ---- PROPERTIES ---- 
     @property
@@ -36,48 +39,73 @@ class Chef:
         return self.__y
 
     @property
+    def POS(self) -> str:
+        return self.__POS
+    
+    @property
     def image(self) -> tuple:
         """Image is a read only attribute, that will depend initially
         on the POSITION. The image is a tuple with the coordinates of
         the image in the image bank. (image_bank, starting_x,
         starting_y, horizontal_size, vertical_size)
         """
-        if self.__POSITION == "upper":
+        if self.__POS == "upper":
             # (bank, column, row, width, height)
             result = (0, 0, 0, 16, 16)
         else: 
-            result = (0, 0, 112, 16, 16)
+            result = (0, 0, 16, 16, 16)
         return result
 
     @property
     def has_dish(self) -> bool:
         return self.__has_dish
 
+    @property
+    def acting(self) -> bool:
+        return self.__acting
+    
+
     # ---- SETTERS ----
     @x.setter
     def x(self, x: int):
         if not isinstance(x, int):
             raise TypeError("The x position must be an int")
-        elif x < 0:
+        if x < 0:
             raise ValueError("The x cannot be negative")
-        else:
-            self.__x = x
+        self.__x = x
 
     @y.setter
     def y(self, y: int):
         if not isinstance(y, int):
             raise TypeError("The y position must be an int")
-        elif y < 0:
+        if y < 0:
             raise ValueError("The y cannot be negative")
-        else:
-            self.__y = y
+        self.__y = y
+
+
+    # i have to change this - norixa0
+    @POS.setter
+    def POS(self, POS: str):
+        if self.__POS is not None:
+            raise ValueError("Modifying POS attribute is forbidden.")
+        if not isinstance(POS, str):
+            raise TypeError("The position of the Chef must be a str")
+        if POS.lower() not in self.__CHEF_POSITIONS:
+            raise ValueError("The valid positions are " + str(self.__CHEF_POSITIONS))
+        # We create it as private constant as Chefs will never change area
+        self.__POS = POS.lower()
 
     @has_dish.setter
     def has_dish(self, dish: bool):
         if not isinstance(dish, bool):
-            raise TypeError("The has_dish attribute must be bool")
-        else:
-            self.__has_dish = dish
+            raise TypeError("The 'has_dish' attribute must be a bool")
+        self.__has_dish = dish
+
+    @acting.setter
+    def acting(self, acting: bool):
+        if not isinstance(acting, bool):
+            raise TypeError("The 'acting' attribute must be a bool")
+
 
     # ---- METHODS ---- 
     # indicate "Board" with "" so the program doesn't crash for not importing Board (would give problems)
