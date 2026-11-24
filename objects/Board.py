@@ -10,15 +10,22 @@ from objects.Ingredient import Ingredient
 class Board:
     def __init__(self):
         """ Method that creates the board. Additional parameters can be modified through assets/config.json
-        """ # have to modify this probably
+        """
         with open("assets/config.json", "r") as file: # Read config.josn
-            self.config_data = json.load(file)
+            self.__config_data = json.load(file)
+
         # Define parameters (obtains them from json file)
-        self.__width = self.config_data["SCREEN_W"]
-        self.__height = self.config_data["SCREEN_H"]
-        self.__kitchen_map = self.config_data["KITCHEN_MAP"]
-        self.__tiles = self.config_data["TILE"]
-        self.__service_h = self.config_data["SERVICE_H"]
+        self.__width = self.__config_data["SCREEN_W"] # Screen width
+        self.__height = self.__config_data["SCREEN_H"] # Screen height
+        self.__kitchen_map = self.__config_data["KITCHEN_MAP"] # Kitchen map (9 rows, 12 columns)
+        self.__tiles = self.__config_data["TILE"] # Tile size in pixels (16x16 default)
+        self.__service_h = self.__config_data["SERVICE_H"] # Service area height in pixels
+
+        # Image parameters to draw later:
+        # The lists in json file is in format: [bank, row, column, width, height]
+        self.__scenery_images = self.__config_data["SCENERY_IMAGES"] # Scenery images in format. 
+        self.__chef_images = self.__config_data["CHEF_IMAGES"] # Chef images in format.
+        self.__
 
         # The board contains two Chefs
         self.chef1 = Chef(self.width // 4, self.height // 4, "upper")
@@ -60,72 +67,15 @@ class Board:
     def service_h(self) -> int:
         return self.__service_h
 
-    # ---- SETTERS ----
-    # @width.setter
-    # def width(self, width: int):
-    #     if not isinstance(width, int):
-    #         raise TypeError("The width must be an integer")
-    #     if width == 192:
-    #         self.__width = width
-    #     else:
-    #         raise ValueError("The width must be 192")
+    @property
+    def scenery_images(self) -> dict:
+        return self.__scenery_images
 
-    # @height.setter
-    # def height(self, height: int):
-    #     if not isinstance(height, int):
-    #         raise TypeError("The height must be an integer")
-    #     if height == 176:
-    #         self.__height = height
-    #     else:
-    #         raise ValueError("The height must be 176")
+    @property
+    def chef_images(self) -> dict:
+        return self.__chef_images
 
-    # @kitchen_map.setter
-    # def kitchen_map(self, kitchen_map: list):
-    #     if not isinstance(kitchen_map, list):
-    #         raise TypeError("kitchen_map must be a list")
-    #     if kitchen_map == [
-    #         "CCCCCCCCCCCC",
-    #         "FFFFFFFFFFFF",
-    #         "FFFFFFFFFFFF",
-    #         "FFFFFFFFFFFF",
-    #         "WPWPWBWPWWPW",
-    #         "FFFFFFFFFFFF",
-    #         "FFFFFFFFFFFF",
-    #         "FFFFFFFFFFFF",
-    #         "CCCCCCCCCCCC"
-    #     ]:
-    #         self.__kitchen_map = kitchen_map
-    #     else:
-    #         raise ValueError(
-    #             "The kitchen map must be"
-    #             "CCCCCCCCCCCC",
-    #             "FFFFFFFFFFFF",
-    #             "FFFFFFFFFFFF",
-    #             "FFFFFFFFFFFF",
-    #             "WPWPWBWPWWPW",
-    #             "FFFFFFFFFFFF",
-    #             "FFFFFFFFFFFF",
-    #             "FFFFFFFFFFFF",
-    #             "CCCCCCCCCCCC"
-    #         )
-
-    # @tiles.setter
-    # def tiles(self, tiles: int):
-    #     if not isinstance(tiles, int):
-    #         raise TypeError("tiles must be an integer")
-    #     if tiles == 16:
-    #         self.__tiles = tiles
-    #     else:
-    #         raise ValueError("tiles dimension must be 16")
-
-    # @service_h.setter
-    # def service_h(self, service_h: int):
-    #     if not isinstance(service_h, int):
-    #         raise TypeError("service_h must be an integer")
-    #     if service_h == 32:
-    #         self.__service_h = service_h
-    #     else:
-    #         raise ValueError("service_h value must be 32 ")
+    # ---- METHODS ----
 
     def update(self):
         """Pyxel method that gets executed in every iteration of
@@ -172,21 +122,53 @@ class Board:
         pyxel.cls(0)
 
         # For knowing what are the coordinates of every element in the kitchen_map
-        # for i in range(9):
-        #     for g in range(12):
-        #         x = g * self.tiles
-        #         y = i* self.tiles + self.service_h
-        #         variable1=self.kitchen_map[i][g] 
-        #         if variable1=="F":
-        #           pyxel.blt()
-        #         if variable1=="W":
-        #           pyxel.blt()
-        #         if variable1=="C":
-        #           pyxel.blt()
-        #         if variable1=="P":
-        #           pyxel.blt()
-        #         if variable1=="B":
-        #           pyxel.blt()
+        # Iterates through the 11 map rows.
+        # row represents the horizontal position in the map.
+        for row in range(len(self.kitchen_map)):
+            # Iterates through the 12 characters in each row.
+            # column represents the vertical position.
+            for column in range(len(self.kitchen_map[0])):
+                x = column * self.tiles # each draw area occupies 16x16 in this case (self.tiles) 
+                y = row * self.tiles + self.service_h # leaving service_h pixels at the top for the service area
+                pos = self.__kitchen_map[row][column] # (x, y)
+                if pos=="S": # S for Service Board (orders, score, etc.) - WIP
+                    pass
+                if pos=="C": # C for Counter
+                    pyxel.blt(x, y, *self.__scenery_images["C"])
+                if pos=="F": # F for Floor
+                    pyxel.blt(x, y, *self.__scenery_images["F"])
+                if pos=="W": # W for Wall
+                    pyxel.blt(x, y, *self.__scenery_images["W"])
+                if pos=="P": # P for Pass (between chefs)
+                    pyxel.blt(x, y, *self.__scenery_images["P"])
+                if pos=="B": # B for Bin
+                    pyxel.blt(x, y, *self.__scenery_images["B"])
+                if pos=="o": # o for Onion
+                    pyxel.blt(x, y, *self.__scenery_images["o"])
+                if pos=="e": # e for Egg:
+                    pyxel.blt(x, y, *self.__scenery_images["e"])
+                if pos=="c": # c for Chorizo
+                    pyxel.blt(x, y, *self.__scenery_images["c"])
+                if pos=="b": # b for Board
+                    pyxel.blt(x, y, *self.__scenery_images["b"])
+                if pos=="r": # r for Blender
+                    pyxel.blt(x, y, *self.__scenery_images["r"])
+                if pos=="s": # s for Serve
+                    pyxel.blt(x, y, *self.__scenery_images["s"])
+                if pos=="k": # k for Sink
+                    pyxel.blt(x, y, *self.__scenery_images["k"])
+                if pos=="t": # t for Tomato
+                    pyxel.blt(x, y, *self.__scenery_images["t"])
+                if pos=="p": # p for Potato
+                    pyxel.blt(x, y, *self.__scenery_images["p"])
+                if pos=="d": # d for Board
+                    pyxel.blt(x, y, *self.__scenery_images["d"])
+                if pos=="n": # n for Pan
+                    pyxel.blt(x, y, *self.__scenery_images["n"])
+                if pos=="R": # R for Return
+                    pyxel.blt(x, y, *self.__scenery_images["R"])
+                if pos=="T": # T for Plates
+                    pyxel.blt(x, y, *self.__scenery_images["T"])
 
         # Drawing the chef. Parameters of pyxel.blt are (x, y, sprite_tuple)
         # * used to unpack the sprite tuple
@@ -204,11 +186,11 @@ class Board:
         # pyxel.text(10, 1, f"({self.chef1.x}, {self.chef1.y})", 7)
         # pyxel.text(10, 10, f"({self.chef2.x}, {self.chef2.y})", 7)
 
-        # Drawing ingredients
-        y = 20
-        x = 30
-        for ingredient in self.ingredients:
-            pyxel.blt(x, y, *ingredient.image)
-            x += 20
+        # Drawing ingredients 
+        # y = 20
+        # x = 30
+        # for ingredient in self.ingredients:
+        #     pyxel.blt(x, y, *ingredient.image)
+        #     x += 20
 
       

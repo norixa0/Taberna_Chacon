@@ -43,6 +43,7 @@ class Chef:
         starting_y, horizontal_size, vertical_size)
         """
         if self.__POSITION == "upper":
+            # (bank, column, row, width, height)
             result = (0, 0, 0, 16, 16)
         else: 
             result = (0, 0, 112, 16, 16)

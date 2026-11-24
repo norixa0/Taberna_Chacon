@@ -1,0 +1,49 @@
+{
+    "SCREEN_W": 192,
+    "SCREEN_H": 176,
+    "KITCHEN_MAP": [
+    "SSSSSSSSSSSS",
+    "SSSSSSSSSSSS",
+    "oecCbCrCCCCs",
+    "FFFFFFFFFFFF",
+    "FFFFFFFFFFFF",
+    "FFFFFFFFFFFF",
+    "WPWPWBWPWkPW",
+    "FFFFFFFFFFFF",
+    "FFFFFFFFFFFF",
+    "FFFFFFFFFFFF",
+    "tpCCCdCnRTCC"
+    ],
+    "TILE": 16,
+    "SERVICE_H": 32,
+    "SCENERY_IMAGES": {
+        "o": [],
+        "e": [],
+        "c": [],
+        "b": [],
+        "r": [],
+        "s": [],
+        "k": [],
+        "t": [],
+        "p": [],
+        "d": [],
+        "n": [],
+        "R": [],
+        "T": [],
+        "C": [0, 16, 64, 16, 16],
+        "F": [0, 0, 64, 16, 16],
+        "W": [0, 32, 64, 16, 16],
+        "P": [0, 48, 64, 16, 16],
+        "B": []
+    },
+    "CHEF_IMAGES": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    ]
+}
