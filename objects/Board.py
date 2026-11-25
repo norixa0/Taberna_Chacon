@@ -19,7 +19,6 @@ class Board:
         self.__height = self.__config_data["SCREEN_H"] # Screen height
         self.__kitchen_map = self.__config_data["KITCHEN_MAP"] # Kitchen map (9 rows, 12 columns)
         self.__tiles = self.__config_data["TILE"] # Tile size in pixels (16x16 default)
-        self.__service_h = self.__config_data["SERVICE_H"] # Service area height in pixels
 
         # Image parameters to draw later:
         # The lists in json file is in format: [bank, row, column, width, height]
@@ -27,7 +26,7 @@ class Board:
         self.__chef_images = self.__config_data["CHEF_IMAGES"] # Chef images in format.
 
         # The board contains two Chefs
-        self.chef1 = Chef(self.width // 4, self.height // 4, "upper")
+        self.chef1 = Chef(self.width // 4, self.height // 3, "upper")
         self.chef2 = Chef(self.width * 3 // 4, self.height * 3 // 4, "lower")
 
         # List of ingredients, assign them an object and append them to self.ingredients.
@@ -129,7 +128,7 @@ class Board:
                 pos = self.kitchen_map[row][column]  # Character at this map position
 
                 x = column * self.tiles  # Convert column to screen x-coordinate.
-                y = row * self.tiles + self.service_h  # Convert row to screen y-coordinate.
+                y = row * self.tiles # Convert row to screen y-coordinate.
                 pyxel.blt(x, y, *self.__scenery_images[pos])  # Draw the matching tile.
 
         # Drawing the chef. Parameters of pyxel.blt are (x, y, sprite_tuple)
