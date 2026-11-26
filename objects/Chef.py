@@ -2,26 +2,28 @@
 
 # © 2026 norixa0, albertochamaquito8-create. All rights reserved.
 
-import json,os
+import json
 
 class Chef:
-    """Chef class for the final project. Contains properties, setters, 
-    a move method and an act method."""
-    def __init__(self, x: int, y: int, POS: str):
+    def __init__(self, x: int, y: int, location: str):
         """:param x: the x of the chef
         :param y: the y of the chef
-        :param pos: the position of the chef (must be in CHEF_POSITIONS)
+        :param location: the location of the chef (must be in CHEF_POSITIONS)
         """
         with open("objects/assets/config.json", "r") as file: # Read config.json
            self.__config_data = json.load(file)
+        with open("objects/assets/resources.json", "r") as file: 
+            self.__resources = json.load(file)
 
-        # Load data into self (using setters and properties)
-        self.__CHEF_POSITIONS = self.__config_data["CHEF_POSITIONS"]
+
+        self.__chef_positions = tuple(self.__config_data["CHEF_POSITIONS"])
+        self.__chef_directions = tuple(self.__config_data["CHEF_DIRECTIONS"]["valid"])
+
+        # Assign attributes
         self.x = x
         self.y = y
-        # position will be a constant once it's defined (chefs don't change area)
-        self.__POS = None
-        self.POS = POS
+        self.location = location
+        self.direction = "up" # Default direction is down, but it will change when the chef moves
 
         # At the beginning it has no dish and is not acting
         # Set attribs with properties and setters
@@ -39,8 +41,12 @@ class Chef:
         return self.__y
 
     @property
-    def POS(self) -> str:
-        return self.__POS
+    def location(self) -> str:
+        return self.__location
+
+    @property
+    def direction(self) -> str:
+        return self.__direction
     
     @property
     def image(self) -> tuple:
@@ -49,12 +55,8 @@ class Chef:
         the image in the image bank. (image_bank, starting_x,
         starting_y, horizontal_size, vertical_size)
         """
-        if self.__POS == "upper":
-            # (bank, column, row, width, height)
-            result = (0, 0, 0, 16, 16)
-        else: 
-            result = (0, 0, 16, 16, 16)
-        return result
+        if self.__location in self.__resources["CHEF_IMAGES"]:
+            return tuple(self.__resources["CHEF_IMAGES"][self.__location][self.__direction])
 
     @property
     def has_dish(self) -> bool:
@@ -82,18 +84,22 @@ class Chef:
             raise ValueError("The y cannot be negative")
         self.__y = y
 
-
-    # i have to change this - norixa0
-    @POS.setter
-    def POS(self, POS: str):
-        if self.__POS is not None:
-            raise ValueError("Modifying POS attribute is forbidden.")
-        if not isinstance(POS, str):
+    @location.setter
+    def location(self, location: str):
+        if not isinstance(location, str):
             raise TypeError("The position of the Chef must be a str")
-        if POS.lower() not in self.__CHEF_POSITIONS:
-            raise ValueError("The valid positions are " + str(self.__CHEF_POSITIONS))
+        if location.lower() not in self.__chef_positions:
+            raise ValueError("The valid positions are " + str(self.__chef_positions))
         # We create it as private constant as Chefs will never change area
-        self.__POS = POS.lower()
+        self.__location = location.lower()
+
+    @direction.setter
+    def direction(self, direction: str):
+        if not isinstance(direction, str):
+            raise TypeError("The direction must be a string")
+        if direction.lower() not in self.__chef_directions:
+            raise ValueError("The valid directions are " + str(self.__chef_directions))
+        self.__direction = direction.lower()
 
     @has_dish.setter
     def has_dish(self, dish: bool):
@@ -105,6 +111,7 @@ class Chef:
     def acting(self, acting: bool):
         if not isinstance(acting, bool):
             raise TypeError("The 'acting' attribute must be a bool")
+        self.__acting = acting
 
 
     # ---- METHODS ---- 
@@ -112,27 +119,15 @@ class Chef:
     def move(self, direction: str, board: "Board"):
         """ Moving the chef
         :param direction: a string containing the direction to move
-        :param board: the Board, we could have received its vertical and
-        horizontal sizes, but as in the future, to move we need to consider
-        other board components it is better to receive the whole board as
-        parameter
+        :param board: the Board object, to check the size of the board and avoid moving out of it
         """
-        DIRECTIONS = ("left", "right", "up", "down")
+
         board_x_size = board.width
         board_y_size = board.height
-        if not isinstance(direction, str):
-            raise TypeError("The direction must be a string")
-        elif direction.lower() not in DIRECTIONS:
-            raise ValueError("The direction must be in " + str(DIRECTIONS))
-        
-        # Convert to lower case
-        direction = direction.lower()
 
-        # The (0, 0) position of the chef is the top left corner of the
-        # sprite. We can move the chef to the right if the rightmost
-        # x-coordinate of the chef is less than the board size. It will be
-        # the x-coordinate of the chef plus the width of the sprite. The
-        # width of the sprite is the 4th element of the image tuple.
+        # If direction is not valid, it will raise an error in the setter of direction
+        self.direction = direction.lower() # Change the direction of the chef to the new one (for sprite animation)
+        # We can move the chef to the right if its x + size is < width
         if direction == "right" and self.x + self.image[3] < board_x_size:
             self.x += 1
         # We can move the chef to the left if its x-coordinate is > 0
@@ -140,10 +135,16 @@ class Chef:
             self.x -= 1
         # We can move it up if its y > 0
         elif direction == 'up' and self.y > 0:
-            self.y -= 1
+            if self.__location == "lower" and self.y - 1 > 14 + (board_y_size // 2):
+                self.y -= 1
+            elif self.__location == "upper" and self.y - 1 > 36:
+                self.y -= 1
         # Finally, it can be moved down if its y + size is < height
         elif direction == "down" and self.y + self.image[4] < board_y_size:
-            self.y += 1
+            if self.__location == "lower" and self.y + 1 < board_y_size - 32:
+                self.y += 1
+            elif self.__location == "upper" and self.y + 1 < (board_y_size // 2) - 8:
+                self.y += 1
 
     def act(self):
         """ This method changes the state of the acting attribute"""
