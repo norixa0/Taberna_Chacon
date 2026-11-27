@@ -19,6 +19,11 @@ class Board:
         self.__height = self.__config_data["SCREEN_H"] # Screen height
         self.__kitchen_map = self.__config_data["KITCHEN_MAP"] # Kitchen map (9 rows, 12 columns)
         self.__tiles = self.__config_data["TILE"] # Tile size in pixels (16x16 default)
+        self.__frame_count = 0  # Counts the frames to know when one second has passed
+        self.__timer=0  # the timer of the service board 
+        self.__score=0 # the score of the service board 
+        self.__orders=0 
+        self.__failures=0
 
         # Image parameters to draw later:
         # The lists in json file is in format: [bank, row, column, width, height]
@@ -111,6 +116,11 @@ class Board:
         if pyxel.btnp(pyxel.KEY_LSHIFT):
             self.chef2.act()
 
+        self.__frame_count += 1  
+        if self.__frame_count == 30: #this is the loop used for making the counter 
+            self.__timer = self.__timer + 1 #we add 1 second for every 30 iterations that the program has done 
+            self.__frame_count = 0 # Resets the frame counter to start counting the next second
+
     def draw(self):
         """Pyxel method that also gets executed in every iteration of
         the game (30fps). This is dedicated to draw everything needed on screen.
@@ -131,7 +141,16 @@ class Board:
                 y = row * self.tiles # Convert row to screen y-coordinate.
                 pyxel.blt(x, y, *self.__scenery_images[pos])  # Draw the matching tile.
 
+        pyxel.text(125,5, "Time: " + str(self.__timer), 9)
         # Drawing the chef. Parameters of pyxel.blt are (x, y, sprite_tuple)
+
+        pyxel.text(125,13,"Score: " + str(self.__score), 8)
+ 
+        pyxel.text(125,21,"Failures: " + str(self.__failures) , 3)
+
+        pyxel.text(13 , 13  ,"Orders: " + str(self.__orders), 10)
+        
+       # pyxel.text()
         # * used to unpack the sprite tuple
         pyxel.blt(self.chef1.x, self.chef1.y, *self.chef1.image)
 
